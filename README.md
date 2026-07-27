@@ -1,11 +1,10 @@
 # Fine-tuning Open-source Models for Target Prioritization Workflows
 
-Large language models are strong at short-horizon Q&A but unreliable on **long-horizon, multi-tool expert workflows** — the kind where the answer requires gathering evidence from a dozen data sources, reasoning over it against domain-specific criteria, and synthesizing a calibrated recommendation. This project builds the full pipeline to teach a small open model one such workflow: **prioritizing cell-surface proteins as therapeutic targets** (for CAR-T / ADC / bispecific modalities) in oncology.
+In this project, Qwen3.5-9B was fine-tuned to do tumor-associated antigen (TAA) target prioritization, a very important step in evaluating a target for CAR-T/TCE/antibody modalities in drug discovery and a workflow filled with expert knowledge (see examples below). Open-source models are getting better and pharma companies want their own proprietary models for drug development workflows (maybe Claude is too expensive or it cannot be used, like in China). This TAA target-prio workflow is long-horizon and uses tool calls from ~20 public/internal sources to produce the final evaluation for a target. 
 
-The recipe is **rejection-sampling distillation from a frontier teacher, filtered by an LLM judge against a co-designed expert rubric.** A frontier model runs as an agent inside a purpose-built **27-tool biology environment**; each trajectory is scored on a **24-dimension expert rubric** by an LLM judge; only high-scoring trajectories become supervised fine-tuning (SFT) data for a **Qwen3.5-9B** student.
+The fine-tuned 9B scores **4.21 / 5** on 10 held-out target queries, compared to **1.08 / 5** on Qwen3.5-9B base model. The fine-tuned 9B also beats the base model when it was conditioned on the rubric (2.7 / 5), and approaches the frontier teacher (4.6 / 5). 
 
-The headline result: after fixing a subtle training-format bug, the fine-tuned 9B scores **4.21 / 5** on a held-out target (blind, no rubric in the prompt) — **beating the base model that was *handed* the rubric by ~2 points**, and approaching the frontier teacher (~4.6). The rubric-quality behavior is genuinely **distilled into the weights**, not promptable. The model is deployed as a live streaming agent.
-
+You can try the agent here: models.frontwind.ai/agent.
 ---
 
 ## System overview
