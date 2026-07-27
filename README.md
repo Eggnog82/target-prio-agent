@@ -1,12 +1,4 @@
-# Distilling Agentic Reasoning for Surface-Target Prioritization
-
-**A domain-specific RL environment, LLM-judge rejection-sampling dataset, and SFT distillation pipeline that teaches a small open model to do expert-level therapeutic-target triage — reaching near-frontier quality on a blind expert rubric.**
-
-> Research prototype by **[Eric Li](https://github.com/Eggnog82)** (Yale, CS + Molecular/Cellular/Developmental Biology). Not for clinical use. This repository is a write-up; the implementation is private.
-
----
-
-## Abstract
+# Fine-tuning Open-source Models for Target Prioritization Workflows
 
 Large language models are strong at short-horizon Q&A but unreliable on **long-horizon, multi-tool expert workflows** — the kind where the answer requires gathering evidence from a dozen data sources, reasoning over it against domain-specific criteria, and synthesizing a calibrated recommendation. This project builds the full pipeline to teach a small open model one such workflow: **prioritizing cell-surface proteins as therapeutic targets** (for CAR-T / ADC / bispecific modalities) in oncology.
 
