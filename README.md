@@ -1,6 +1,11 @@
 # Fine-tuning Open-source Models for Target Prioritization Workflows
 
-In this project, Qwen3.5-9B was fine-tuned to do tumor-associated antigen (TAA) target prioritization, a very important step in evaluating a target for CAR-T/TCE/antibody modalities in drug discovery and a workflow filled with expert knowledge (see examples below). Open-source models are getting better and pharma companies want their own proprietary models for drug development workflows (maybe Claude is too expensive or it cannot be used, like in China). This TAA target-prio workflow is long-horizon and uses tool calls from ~20 public/internal sources to produce the final evaluation for a target. 
+In this project, Qwen3.5-9B was fine-tuned to do tumor-associated antigen (TAA) target prioritization, a very important step in evaluating a target for CAR-T/TCE/antibody modalities in drug discovery and a workflow filled with expert knowledge (see examples below). Open-source models are getting better and pharma companies want their own proprietary models for drug development workflows (maybe Claude is too expensive or it cannot be used, like in China). This TAA target-prio workflow is long-horizon and uses tool calls from ~20 public/internal sources to produce the final evaluation for a target. An example query could be: 
+
+```
+Evaluate PTK7 as a candidate cell-surface ADC target for non-small cell lung cancer (NSCLC).
+```
+ 
 
 The fine-tuned 9B scores **4.01 / 5** on 10 held-out target queries, compared to **1.08 / 5** on Qwen3.5-9B base model. The fine-tuned 9B also beats the base model when it was conditioned on the rubric (2.7 / 5), and approaches the frontier teacher (4.6 / 5). 
 
