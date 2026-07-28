@@ -86,6 +86,8 @@ Same environment, judged blind. The base model — *even handed the rubric* — 
 | Opening reasoning | *"The user wants me to assess CLDN6… I need to systematically evaluate this target…"* | *"I'll systematically gather evidence… starting with the foundational surface-accessibility gate…"* |
 | Assessment | *"CLDN6 shows EXCELLENT tumor/normal specificity…"* (prose only) | *"**Bottom line up front:** CLDN6 clears the surface-accessibility gate cleanly, shows an outstanding tumor:normal window…"* (+ 9 figures) |
 
+**📄 Full trajectories** (every turn, tool call, and the final report with rendered figures): [PTK7 — fine-tuned](trajectories/PTK7-finetuned.md) · [PTK7 — base](trajectories/PTK7-base.md) · [CLDN6 — fine-tuned](trajectories/CLDN6-finetuned.md) · [CLDN6 — base](trajectories/CLDN6-base.md)
+
 > A same-query **teacher (Claude Sonnet 5)** trajectory can be added for a full three-way; the teacher is the source the fine-tune distills toward, so the fine-tuned behavior above approximates it.
 
 
