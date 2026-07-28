@@ -62,11 +62,40 @@ Models were evaluated on 10 held-out targets, judged by a frontier LLM (Claude O
 
 The fine-tuned student, blind, — beats the base model that was conditioned on the rubric by ~1.5 points. The fine-tune also produces real, rendered figures (8–12 per report) where the base model produces essentially none.
 
-Here are also some prompt-trajectory pair examples.
+### Example trajectories (base vs. fine-tuned, held-out targets)
+
+Same environment, judged blind. The base model — *even handed the rubric* — writes meta-framed prose with **zero figures**; the fine-tuned model reasons **surface-gate-first** in an expert voice, calls the right tools, and renders **9–17 real figures**. On PTK7 the two even reach **opposite recommendations**.
+
+**PTK7 — ADC target, NSCLC**
+
+| | Base 9B (rubric-conditioned) | Fine-tuned 9B (blind) |
+|---|---|---|
+| Tool calls | 44 | 60 |
+| Figures rendered | **0** | **15** |
+| Opening reasoning | *"The user wants me to evaluate PTK7… I need to gather comprehensive data across multiple dimensions…"* | *"I'll systematically gather evidence across all the key dimensions for PTK7 as an NSCLC ADC target. Let me start with the foundational calls in parallel."* |
+| Recommendation | *"**REJECT / DO NOT PURSUE** — PTK7 fails to meet the critical thresholds…"* | *"**Bottom line up front:** PTK7 is a real, clinically precedented ADC target in NSCLC with a genuine tumor-vs-normal window (LUAD log2FC 0.55, LUSC log2FC 0.59)…"* |
+
+*(PTK7 is a clinically-precedented ADC target — e.g. cofetuzumab pelidotin / PF-06647020. The base model rejects it, unsupported by any figure; the fine-tuned model recommends it with a quantified expression window and 15 rendered figures.)*
+
+**CLDN6 — CAR-T / bispecific, ovarian**
+
+| | Base 9B (rubric-conditioned) | Fine-tuned 9B (blind) |
+|---|---|---|
+| Tool calls | 36 | 60 |
+| Figures rendered | **0** | **9** |
+| Opening reasoning | *"The user wants me to assess CLDN6… I need to systematically evaluate this target…"* | *"I'll systematically gather evidence… starting with the foundational surface-accessibility gate…"* |
+| Assessment | *"CLDN6 shows EXCELLENT tumor/normal specificity…"* (prose only) | *"**Bottom line up front:** CLDN6 clears the surface-accessibility gate cleanly, shows an outstanding tumor:normal window…"* (+ 9 figures) |
+
+> A same-query **teacher (Claude Sonnet 5)** trajectory can be added for a full three-way; the teacher is the source the fine-tune distills toward, so the fine-tuned behavior above approximates it.
 
 
 ## 6. Next Steps
 
-- Increase SFT dataset size.
-- Experiment with training specialized models for other similar workflows (HTE validation, bispecific AND/OR target-prio) which use similar tools but have slightly different rubrics/workflows procedure.
+- **Larger, multi-sample evaluation.** Current scores are on a small held-out set; expand to more targets × multiple samples per target for tighter, lower-variance estimates.
+- **On-policy RL (RLVR).** The environment + rubric already form a *verifiable-reward RL environment* — move from SFT distillation to on-policy RL (e.g. GRPO / rejection-sampling RL) to push past the teacher and fix pacing. (On-policy STaR failed on the *base* model, but the SFT'd model is a much better starting policy.)
+- **Fix pacing / synthesis.** The model over-gathers (60+ tool calls) and synthesizes late; add budget-aware / "stop-and-synthesize" pressure so it self-regulates instead of relying on an external cap.
+- **Add trap & triage cases.** Include bad targets (e.g. TP53, GAPDH) that should be *rejected at the surface gate*, so the model learns correct early rejection, not just thorough evaluation.
+- **Serving efficiency.** Quantize (int8 / 4-bit) to fit cheaper GPUs, and distill to a smaller student (e.g. 4B) for lower-cost inference.
+- **Increase SFT dataset size.**
+- **Specialize to adjacent workflows** (HTE validation, bispecific AND/OR target-prio) which share tools but use slightly different rubrics/procedures.
 
