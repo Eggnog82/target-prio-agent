@@ -67,7 +67,7 @@ Models were evaluated on 14 held-out targets queries, judged by Claude Sonnet 5 
 | Teacher (reference) | 4.36 | 8-12 |
 
 
-Full trajectory examples here: ** [models.frontwind.ai/examples](https://models.frontwind.ai/examples)** — PTK7 & CLDN6, fine-tuned vs. base, side by side.
+Full trajectory examples here: [models.frontwind.ai/examples](https://models.frontwind.ai/examples) — PTK7 & CLDN6, fine-tuned vs. base, side by side.
 
 ## 6. Next Steps
 
