@@ -7,7 +7,7 @@ Evaluate PTK7 as a candidate cell-surface ADC target for non-small cell lung can
 ```
  
 
-The fine-tuned 9B scores **4.01 / 5** on 10 held-out target queries, compared to **1.08 / 5** on Qwen3.5-9B base model. The fine-tuned 9B also beats the base model when it was conditioned on the rubric (2.7 / 5), and approaches the frontier teacher (4.6 / 5). 
+The fine-tuned 9B scores **3.75 / 5** on 14 held-out target queries, compared to **1.94 / 5** on Qwen3.5-9B base model. The fine-tuned 9B also beats the base model when it was conditioned on the rubric (2.05 / 5), and approaches the frontier teacher (4.36 / 5). 
 
 You can try the agent here: [models.frontwind.ai/agent](https://models.frontwind.ai/agent).
 
@@ -60,10 +60,10 @@ Models were evaluated on 10 held-out targets, judged by a frontier LLM (Claude O
 
 | Model | Avg. rubric score | Figures produced |
 |---|---|---|---|
-| Base Qwen3.5-9B | 1.08 | 0–1 |
-| Base Qwen3.5-9B, **rubric-conditioned** | 2.54 | 0–1 |
-| **Fine-tuned Qwen3.5-9B, blind (ours)** | **4.01** | **8–12** |
-| Frontier teacher (reference) | ~4.6 | ~4.6 | 8–12 |
+| Base Qwen3.5-9B | 1.94 | 0–1 |
+| Base Qwen3.5-9B, **rubric-conditioned** | 2.05 | 0–1 |
+| **Fine-tuned Qwen3.5-9B, blind (ours)** | **3.75** | **8–12** |
+| Frontier teacher (reference) | 4.36 | 8–12 |
 
 The fine-tuned student, blind, — beats the base model that was conditioned on the rubric by ~1.5 points. The fine-tune also produces real, rendered figures (8–12 per report) where the base model produces essentially none.
 
