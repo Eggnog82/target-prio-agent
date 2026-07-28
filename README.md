@@ -4,7 +4,7 @@ In this project, Qwen3.5-9B was fine-tuned to do tumor-associated antigen (TAA) 
 
 The fine-tuned 9B scores **4.01 / 5** on 10 held-out target queries, compared to **1.08 / 5** on Qwen3.5-9B base model. The fine-tuned 9B also beats the base model when it was conditioned on the rubric (2.7 / 5), and approaches the frontier teacher (4.6 / 5). 
 
-You can try the agent here: [models.frontwind.ai/agent].
+You can try the agent here: [models.frontwind.ai/agent](https://models.frontwind.ai/agent) *(behind a free login)*.
 
 ---
 
