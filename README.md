@@ -91,11 +91,7 @@ Same environment, judged blind. The base model — *even handed the rubric* — 
 
 ## 6. Next Steps
 
-- **Larger, multi-sample evaluation.** Current scores are on a small held-out set; expand to more targets × multiple samples per target for tighter, lower-variance estimates.
-- **On-policy RL (RLVR).** The environment + rubric already form a *verifiable-reward RL environment* — move from SFT distillation to on-policy RL (e.g. GRPO / rejection-sampling RL) to push past the teacher and fix pacing. (On-policy STaR failed on the *base* model, but the SFT'd model is a much better starting policy.)
-- **Fix pacing / synthesis.** The model over-gathers (60+ tool calls) and synthesizes late; add budget-aware / "stop-and-synthesize" pressure so it self-regulates instead of relying on an external cap.
-- **Add trap & triage cases.** Include bad targets (e.g. TP53, GAPDH) that should be *rejected at the surface gate*, so the model learns correct early rejection, not just thorough evaluation.
-- **Serving efficiency.** Quantize (int8 / 4-bit) to fit cheaper GPUs, and distill to a smaller student (e.g. 4B) for lower-cost inference.
-- **Increase SFT dataset size.**
-- **Specialize to adjacent workflows** (HTE validation, bispecific AND/OR target-prio) which share tools but use slightly different rubrics/procedures.
+- Increase SFT dataset size.
+- Specialize to adjacent workflows (HTE validation, bispecific AND/OR target-prio) which share tools but use slightly different rubrics/procedures.
+- On-policy RL (RLVR).
 
