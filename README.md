@@ -5,7 +5,7 @@ Tumor-associated antigen (TAA) target prioritization is a very important step in
 ```
 Evaluate PTK7 as a candidate cell-surface ADC target for non-small cell lung cancer (NSCLC).
 ```
-In addition, open-source models are getting better and pharma companies increasingly want their own proprietary models for drug development workflows, perhaps due to the high cost of frontier models, unavailability of frontier models (i.e. in China), or the fear of frontier labs becoming pharma competitors. In this project, Qwen3.5-9B was fine-tuned to do tumor-associated antigen (TAA) target prioritization using SFT. A 27-tool RL environment and 24-dimension rubric were co-designed with an industry expert and built to facilitate LLM-judge rejection-sampling distillation. SFT with assistant-token loss masking was then done on high-scoring trajectories from a frontier model.
+In addition, open-source models are getting better and pharma companies increasingly want their own proprietary models for drug development workflows, perhaps due to the high cost of frontier models or the fear of frontier labs becoming pharma competitors. In this project, Qwen3.5-9B was fine-tuned to do tumor-associated antigen (TAA) target prioritization using SFT. A 27-tool RL environment and 24-dimension rubric were co-designed with an industry expert and built to facilitate LLM-judge rejection-sampling distillation. SFT with assistant-token loss masking was then done on high-scoring trajectories from a frontier model.
 
 
 The fine-tuned 9B scores **3.75 / 5** on 14 held-out target queries, compared to **1.94 / 5** on Qwen3.5-9B base model. The fine-tuned 9B also beats the base model when it was conditioned on the rubric (2.05 / 5), and approaches the frontier teacher (4.36 / 5). 
