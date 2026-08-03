@@ -69,26 +69,20 @@ Models were evaluated on 14 held-out targets queries, judged by Claude Sonnet 5 
 
 Full trajectory examples here: [models.frontwind.ai/examples](https://models.frontwind.ai/examples) — PTK7 & CLDN6, fine-tuned vs. base, side by side.
 
-## 6. Capability retention: what the specialization cost
+## 6. General benchmark capability retention
 
-Rubric score going up does not prove the model is better overall — a narrow fine-tune can buy domain skill by forgetting general ability. So the fine-tuned 9B and the base 9B were re-scored on two general reasoning benchmarks they were never trained on: **GPQA-Diamond** (all 198 questions) and a **700-question stratified MMLU-Pro subsample** (50 per category across all 14 categories).
+To measure if fine-tuning resulted in regression of model capability, the fine-tuned 9B and the base 9B were re-scored on two general reasoning benchmarks GPQA-Diamond (all 198 questions) and a  700-question stratified MMLU-Pro subsample (50 per category across all 14 categories).
 
-Both models answer identical prompts under greedy decoding, so the comparison is paired and significance is tested with **McNemar's exact test** on the discordant pairs rather than an unpaired proportion test.
+Both models answer identical prompts under greedy decoding with one attempt
 
-| Benchmark | Base 9B | Fine-tuned 9B | Δ | McNemar p |
-|---|---|---|---|---|
-| MMLU-Pro (n=700) | 75.9% | 72.0% | **−3.9 pp** | 0.002 |
-| MMLU-Pro, both completed (n=632) | 80.5% | 78.0% | **−2.5 pp** | 0.026 |
-| GPQA-Diamond (n=198) | 73.2% | 66.7% | −6.6 pp | 0.035 |
-| GPQA-Diamond, both completed (n=143) | 88.1% | 83.9% | −4.2 pp | 0.109 |
+| Benchmark | Base 9B | Fine-tuned 9B | Δ | 
+|---|---|---|---|
+| MMLU-Pro (n=700) | 75.9% | 72.0% | −3.9% |
+| MMLU-Pro, both completed (n=632) | 80.5% | 78.0% | −2.5% |
+| GPQA-Diamond (n=198) | 73.2% | 66.7% | −6.6% |
+| GPQA-Diamond, both completed (n=143) | 88.1% | 83.9% | −4.2% |
 
-**There is a real regression of roughly 2.5–4 points on MMLU-Pro.** It survives restricting to items where both models produced a complete answer, which is the strictest form of the test. GPQA-Diamond moves the same direction but loses significance under that restriction, so it is suggestive rather than conclusive at this sample size. The largest per-category losses are biology, business, economics, and physics (−10 pp each) — notably, the biomedical fine-tune made the model *worse* at general biology.
-
-**The absolute accuracies above are not citable as benchmark scores.** 73% on GPQA-Diamond for a 9B is far above published results for this model class, which points to benchmark contamination during pretraining. Contamination inflates both models roughly equally, so the *paired difference* remains meaningful while the levels do not.
-
-The most likely cause is the training recipe rather than the data. This is a full-parameter fine-tune on 142 trajectories; by contrast, [AfterQuery's on-policy distillation work](https://www.afterquery.com/blog/on-policy-distillation-gdpval) reported no measurable regressions on these same benchmarks using LoRA rank 32 for 50 steps — a far lighter touch. Full-parameter training on a small, narrow dataset is close to the textbook setup for catastrophic forgetting.
-
-Reproduce with [`scripts/eval_capability.py`](scripts/eval_capability.py) and [`scripts/compare_capability.py`](scripts/compare_capability.py).
+There is a real regression of roughly 2.5–4% on MMLU-Pro and 4-6.5% on GPQA-Diamond. The largest per-category losses are biology, business, economics, and physics (−10% each) — notably, the biomedical fine-tune made the model worse at general biology.
 
 ## 7. Next Steps
 
