@@ -69,8 +69,31 @@ Models were evaluated on 14 held-out targets queries, judged by Claude Sonnet 5 
 
 Full trajectory examples here: [models.frontwind.ai/examples](https://models.frontwind.ai/examples) — PTK7 & CLDN6, fine-tuned vs. base, side by side.
 
-## 6. Next Steps
+## 6. Capability retention: what the specialization cost
 
+Rubric score going up does not prove the model is better overall — a narrow fine-tune can buy domain skill by forgetting general ability. So the fine-tuned 9B and the base 9B were re-scored on two general reasoning benchmarks they were never trained on: **GPQA-Diamond** (all 198 questions) and a **700-question stratified MMLU-Pro subsample** (50 per category across all 14 categories).
+
+Both models answer identical prompts under greedy decoding, so the comparison is paired and significance is tested with **McNemar's exact test** on the discordant pairs rather than an unpaired proportion test.
+
+| Benchmark | Base 9B | Fine-tuned 9B | Δ | McNemar p |
+|---|---|---|---|---|
+| MMLU-Pro (n=700) | 75.9% | 72.0% | **−3.9 pp** | 0.002 |
+| MMLU-Pro, both completed (n=632) | 80.5% | 78.0% | **−2.5 pp** | 0.026 |
+| GPQA-Diamond (n=198) | 73.2% | 66.7% | −6.6 pp | 0.035 |
+| GPQA-Diamond, both completed (n=143) | 88.1% | 83.9% | −4.2 pp | 0.109 |
+
+**There is a real regression of roughly 2.5–4 points on MMLU-Pro.** It survives restricting to items where both models produced a complete answer, which is the strictest form of the test. GPQA-Diamond moves the same direction but loses significance under that restriction, so it is suggestive rather than conclusive at this sample size. The largest per-category losses are biology, business, economics, and physics (−10 pp each) — notably, the biomedical fine-tune made the model *worse* at general biology.
+
+**The absolute accuracies above are not citable as benchmark scores.** 73% on GPQA-Diamond for a 9B is far above published results for this model class, which points to benchmark contamination during pretraining. Contamination inflates both models roughly equally, so the *paired difference* remains meaningful while the levels do not.
+
+The most likely cause is the training recipe rather than the data. This is a full-parameter fine-tune on 142 trajectories; by contrast, [AfterQuery's on-policy distillation work](https://www.afterquery.com/blog/on-policy-distillation-gdpval) reported no measurable regressions on these same benchmarks using LoRA rank 32 for 50 steps — a far lighter touch. Full-parameter training on a small, narrow dataset is close to the textbook setup for catastrophic forgetting.
+
+Reproduce with [`scripts/eval_capability.py`](scripts/eval_capability.py) and [`scripts/compare_capability.py`](scripts/compare_capability.py).
+
+## 7. Next Steps
+
+- Re-run the distillation with LoRA instead of a full fine-tune, and re-measure retention with the harness above — this directly tests the catastrophic-forgetting hypothesis.
+- Mix general-domain data into the SFT set as a forgetting mitigation.
 - Larger SFT dataset.
 - On-policy RL (RLVR).
 - Specialize to adjacent workflows: (HTE validation, bispecific target-prio) that share tools but use different rubrics.
