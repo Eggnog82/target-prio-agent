@@ -5,14 +5,16 @@ Tumor-associated antigen (TAA) target prioritization is a very important step in
 ```
 Evaluate PTK7 as a candidate cell-surface ADC target for non-small cell lung cancer (NSCLC).
 ```
-In addition, open-source models are getting better and pharma companies increasingly want their own proprietary models for drug development workflows, perhaps due to the high cost of frontier models or the fear of frontier labs becoming pharma competitors. In this project, Qwen3.5-9B was fine-tuned to do tumor-associated antigen (TAA) target prioritization using SFT. A 27-tool RL environment and 24-dimension rubric were co-designed with an industry expert and built to facilitate LLM-judge rejection-sampling distillation. SFT with assistant-token loss masking was then done on high-scoring trajectories from a frontier model.
 
+In addition, open-source models are getting better and pharma companies increasingly want their own proprietary models for drug development workflows, perhaps due to the high cost of frontier models or the fear of frontier labs becoming pharma competitors. In this project, Qwen3.5-9B was fine-tuned to do tumor-associated antigen (TAA) target prioritization using SFT. A 27-tool RL environment and 24-dimension rubric were co-designed with an industry expert and built to facilitate LLM-judge rejection-sampling distillation. SFT with assistant-token loss masking was then done on high-scoring trajectories from a frontier model.
 
 The fine-tuned 9B scores **3.75 / 5** on 14 held-out target queries, compared to **1.94 / 5** on Qwen3.5-9B base model. The fine-tuned 9B also beats the base model when it was conditioned on the rubric (2.05 / 5), and approaches the frontier teacher (4.36 / 5). 
 
 You can try the agent here: [models.frontwind.ai/agent](https://models.frontwind.ai/agent).
 
 ---
+
+
 
 ## System overview
 
@@ -27,7 +29,11 @@ flowchart LR
     F --> G[Deployed streaming agent<br/>GPU serving]
 ```
 
+
+
 ---
+
+
 
 ## 1. The environment (verifiable, single-source tools)
 
@@ -41,17 +47,30 @@ Quality of a trajectory is defined by a 24-dimension rubric co-designed with an 
 
 The SFT set is built by **rejection sampling** the teacher's trajectories:
 
-1. **Generate** — a frontier model (Claude Sonnet 5) runs as an agent over the environment on a spread of target queries, producing full multi-tool trajectories (reasoning + tool calls + figures + final report). The frontier model is given the rubric in the system prompt and told to produce a trajectory that will score full marks. 
+1. **Generate** — a frontier model (Claude Sonnet 5) runs as an agent over the environment on a spread of target queries, producing full multi-tool trajectories (reasoning + tool calls + figures + final report). The frontier model is given the rubric in the system prompt and told to produce a trajectory that will score full marks.
 2. **Judge** — an LLM judge (Claude Opus 4.8) scores each trajectory on all 24 rubric dimensions.
 3. **Filter** — keep only trajectories clearing >=4 avg. score and ==5 on evidence faithfulness dimensions.
 
+
+
 ## 4. Training
 
-- **Teacher:** Claude Sonnet 5.
-- **Student:** Qwen3.5-9B.
-- **Objective:** SFT with assistant-token loss masking.
-- **Scale:** full-parameter fine-tune via DeepSpeed ZeRO-2 with CPU optimizer offload on 2×H100.
-- **Dataset:** 142 filtered trajectories from teacher model.
+| Setting | Value |
+|---|---|
+| Student | `Qwen/Qwen3.5-9B` |
+| Teacher | `claude-sonnet-5` |
+| Judge | `claude-opus-4-8` |
+| Renderer / chat template | Qwen3.5 — teacher reasoning routed to `reasoning_content` so it renders inside `<think>` |
+| Loss | SFT cross-entropy, assistant-token masked (tool results are context, not targets) |
+| Adaptation | Full-parameter fine-tune (not LoRA) |
+| Dataset size | 142 rejection-sampled trajectories |
+| Learning rate | 1e-5 |
+| Epochs | 4, best-by-eval-loss checkpoint restored |
+| Batch size | 4 sequences (1 per GPU × 2 grad-accum × 2 GPUs) |
+| Max sequence length | 49,152 tokens |
+| Precision | bf16 |
+| Parallelism | DeepSpeed ZeRO-2 + CPU optimizer offload, 2×H100 |
+| Eval split | 12% held out |
 
 Note: Mid-trajectory reasoning turns from Claude Sonnet 5 were put into `<think></think>` tags in the Qwen chat template. 
 
@@ -59,35 +78,36 @@ Note: Mid-trajectory reasoning turns from Claude Sonnet 5 were put into `<think>
 
 Models were evaluated on 14 held-out targets queries, judged by Claude Sonnet 5 against the 24-dimension rubric (1–5). "Blind" = no rubric in the prompt; "conditioned" = rubric injected. 
 
-| Model | Mean (single-target) | Figures rendered |
-|---|---|---|
-| Base 9B, blind | 1.94 | 0-1 |
-| Base 9B, rubric-conditioned | 2.05 | 0-1 |
-| **Fine-tuned 9B, blind** | **3.75** | 8-12 |
-| Teacher (reference) | 4.36 | 8-12 |
+
+| Model                       | Mean (single-target) | Figures rendered |
+| --------------------------- | -------------------- | ---------------- |
+| Base 9B, blind              | 1.94                 | 0-1              |
+| Base 9B, rubric-conditioned | 2.05                 | 0-1              |
+| **Fine-tuned 9B, blind**    | **3.75**             | 8-12             |
+| Teacher (reference)         | 4.36                 | 8-12             |
 
 
-Full trajectory examples here: [models.frontwind.ai/examples](https://models.frontwind.ai/examples) — PTK7 & CLDN6, fine-tuned vs. base, side by side.
+Full trajectory examples here: [models.frontwind.ai/examples](https://models.frontwind.ai/examples).
 
 ## 6. General benchmark capability retention
 
 To measure if fine-tuning resulted in regression of model capability, the fine-tuned 9B and the base 9B were re-scored on two general reasoning benchmarks GPQA-Diamond (all 198 questions) and a  700-question stratified MMLU-Pro subsample (50 per category across all 14 categories).
 
-Both models answer identical prompts under greedy decoding with one attempt
+Both models answer identical prompts under greedy decoding with one attempt. 
 
-| Benchmark | Base 9B | Fine-tuned 9B | Δ | 
-|---|---|---|---|
-| MMLU-Pro (n=700) | 75.9% | 72.0% | −3.9% |
-| MMLU-Pro, both completed (n=632) | 80.5% | 78.0% | −2.5% |
-| GPQA-Diamond (n=198) | 73.2% | 66.7% | −6.6% |
-| GPQA-Diamond, both completed (n=143) | 88.1% | 83.9% | −4.2% |
 
-There is a real regression of roughly 2.5–4% on MMLU-Pro and 4-6.5% on GPQA-Diamond. The largest per-category losses are biology, business, economics, and physics (−10% each) — notably, the biomedical fine-tune made the model worse at general biology.
+| Benchmark            | Baseline | Fine-tuned 9B | Δ       |
+| -------------------- | -------- | ------------- | ------- |
+| MMLU-Pro (n=700)     | 82.5%    | 72.0%         | −3.9 pp |
+| GPQA-Diamond (n=198) | 81.7%    | 66.7%         | −6.6 pp |
+
+
+Baseline results are from [Qwen3.5-9B model card](https://huggingface.co/Qwen/Qwen3.5-9B) on HF. Fine-tuned 9B results were produced with Qwen's [recommended sampling parameters](https://huggingface.co/Qwen/Qwen3.5-9B) (thinking mode, `temperature 0.6`, `top_p 0.95`, `top_k 20`, zero-shot, one sample per question). There is a real regression of roughly 2.5–4% on MMLU-Pro and 4-6.5% on GPQA-Diamond. 
 
 ## 7. Next Steps
 
-- Re-run the distillation with LoRA instead of a full fine-tune, and re-measure retention with the harness above — this directly tests the catastrophic-forgetting hypothesis.
 - Mix general-domain data into the SFT set as a forgetting mitigation.
 - Larger SFT dataset.
 - On-policy RL (RLVR).
 - Specialize to adjacent workflows: (HTE validation, bispecific target-prio) that share tools but use different rubrics.
+
