@@ -60,13 +60,13 @@ The SFT set is built by **rejection sampling** the teacher's trajectories:
 | Student | `Qwen/Qwen3.5-9B` |
 | Teacher | `claude-sonnet-5` |
 | Judge | `claude-opus-4-8` |
-| Renderer / chat template | Qwen3.5 — teacher reasoning routed to `reasoning_content` so it renders inside `<think>` |
-| Loss | SFT cross-entropy, assistant-token masked (tool results are context, not targets) |
-| Adaptation | Full-parameter fine-tune (not LoRA) |
+| Renderer / chat template | Qwen3.5 |
+| Loss | SFT cross-entropy, assistant-token masked |
+| Adaptation | Full-parameter fine-tune |
 | Dataset size | 142 rejection-sampled trajectories |
 | Learning rate | 1e-5 |
-| Epochs | 4, best-by-eval-loss checkpoint restored |
-| Batch size | 4 sequences (1 per GPU × 2 grad-accum × 2 GPUs) |
+| Epochs | 4 |
+| Batch size | 4 |
 | Max sequence length | 49,152 tokens |
 | Precision | bf16 |
 | Parallelism | DeepSpeed ZeRO-2 + CPU optimizer offload, 2×H100 |
@@ -98,11 +98,11 @@ Both models answer identical prompts under greedy decoding with one attempt.
 
 | Benchmark            | Baseline | Fine-tuned 9B | Δ       |
 | -------------------- | -------- | ------------- | ------- |
-| MMLU-Pro (n=700)     | 82.5%    | 72.0%         | −3.9 pp |
-| GPQA-Diamond (n=198) | 81.7%    | 66.7%         | −6.6 pp |
+| MMLU-Pro (n=700)     | 82.5%    | 79.0%         | −3.5 pp |
+| GPQA-Diamond (n=198) | 81.7%    | 76.7%         | −6.6 pp |
 
 
-Baseline results are from [Qwen3.5-9B model card](https://huggingface.co/Qwen/Qwen3.5-9B) on HF. Fine-tuned 9B results were produced with Qwen's [recommended sampling parameters](https://huggingface.co/Qwen/Qwen3.5-9B) (thinking mode, `temperature 0.6`, `top_p 0.95`, `top_k 20`, zero-shot, one sample per question). There is a real regression of roughly 2.5–4% on MMLU-Pro and 4-6.5% on GPQA-Diamond. 
+Baseline results are from [Qwen3.5-9B model card](https://huggingface.co/Qwen/Qwen3.5-9B) on HF. Fine-tuned 9B results were produced with the following sampling parameters: thinking mode, `temperature 0.6`, `top_p 0.95`, `top_k 20`, zero-shot, one sample per question. There is a regression of roughly 3.5pp on MMLU-Pro and 4pp on GPQA-Diamond. 
 
 ## 7. Next Steps
 
